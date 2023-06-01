@@ -15,11 +15,11 @@
         <h2>My collected posts</h2>
         <ul>
             <li>
-                <article>
-                    {% for post in all_posts %}
+                {% for post in all_posts %}
+                    <article>
                         {% include 'blog/includes/post.html' %}
-                    {% endfor %}
-                </article>
+                    </article>
+                {% endfor %}
             </li>
         </ul>
     </section>
