@@ -14,8 +14,12 @@ class Author(models.Model):
     last_name = models.CharField(max_length=50)
     email = models.EmailField()
 
-    def __str__(self):
+    @property
+    def full_name(self):
         return f'{self.first_name} {self.last_name}'
+
+    def __str__(self):
+        return self.full_name
 
 
 class Post(models.Model):
@@ -24,7 +28,7 @@ class Post(models.Model):
     excerpt = models.TextField(max_length=200)
     image_name = models.CharField(max_length=50)
     date = models.DateField(auto_now=True)
-    slug = models.SlugField(unique=True, db_index=True) # question
+    slug = models.SlugField(unique=True, db_index=True)
     content = models.TextField(validators=[MinLengthValidator(10)])
     tags = models.ManyToManyField(Tag)
 
