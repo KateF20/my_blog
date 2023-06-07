@@ -1,6 +1,7 @@
 from django.shortcuts import render, get_object_or_404
 
 from .models import Post, Author, Tag
+from shortcuts import get_object_or_404
 
 
 def index(request):
@@ -19,8 +20,8 @@ def posts(request):
     return render(request, 'blog/all_posts.html', context)
 
 
-def single_post(request, slug):
-    post = get_object_or_404(Post, slug=slug)
+def single_post(request, slug, name):
+    post = get_object_or_404(Post, slug=slug, name=name)
     context = {
         'post': post,
         'tags': post.tags.all()

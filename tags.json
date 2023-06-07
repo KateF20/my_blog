@@ -1,0 +1,23 @@
+[
+{
+    "model": "blog.tag",
+    "pk": 1,
+    "fields": {
+        "caption": "Featured"
+    }
+},
+{
+    "model": "blog.tag",
+    "pk": 2,
+    "fields": {
+        "caption": "New"
+    }
+},
+{
+    "model": "blog.tag",
+    "pk": 3,
+    "fields": {
+        "caption": "Hot"
+    }
+}
+]

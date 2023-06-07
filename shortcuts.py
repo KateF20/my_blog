@@ -1,13 +1,11 @@
 from django.http import Http404
 
-from blog.models import Post
 
-
-def get_object_or_404(slug):
+def get_object_or_404(model, **kwargs):
     try:
-        post = Post.objects.get(slug=slug)
+        obj = model.objects.get(**kwargs)
 
-    except Post.DoesNotExist:
-        raise Http404("No Post matches the given slug.")
+    except model.DoesNotExist:
+        raise Http404(f'No {model} matches the given {kwargs.keys()}.')
 
-    return post
+    return obj
