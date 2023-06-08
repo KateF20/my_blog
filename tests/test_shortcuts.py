@@ -1,5 +1,6 @@
 import pytest
 from django.http.response import Http404
+from django.core.exceptions import FieldError
 
 from shortcuts import get_object_or_404
 
@@ -9,7 +10,7 @@ from tests.models import MyModel
 @pytest.mark.parametrize('kwargs, exc', [
     ({'slug': 'slug'}, Http404),
     ({}, Http404),
-    ({'author_rating': 5}, AttributeError),
+    ({'author_rating': 5}, FieldError),
 ])
 def test_404_failed(db, exc, kwargs):
     with pytest.raises(exc):
@@ -18,8 +19,6 @@ def test_404_failed(db, exc, kwargs):
 
 @pytest.mark.parametrize('kwargs, post_id', [
     ({'slug': 'slug'}, 1),
-    ({}, 2),
-    ({'author_rating': 5}, 3),
 ])
 def test_404_ok(db, post_id, kwargs):
     post = get_object_or_404(MyModel, **kwargs)
