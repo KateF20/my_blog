@@ -3,6 +3,8 @@ from django.http.response import Http404
 
 from shortcuts import get_object_or_404
 
+from tests.models import MyModel
+
 
 @pytest.mark.parametrize('kwargs, exc', [
     ({'slug': 'slug'}, Http404),
@@ -11,7 +13,7 @@ from shortcuts import get_object_or_404
 ])
 def test_404_failed(db, exc, kwargs):
     with pytest.raises(exc):
-        get_object_or_404(model, **kwargs)
+        get_object_or_404(MyModel, **kwargs)
 
 
 @pytest.mark.parametrize('kwargs, post_id', [
@@ -20,5 +22,5 @@ def test_404_failed(db, exc, kwargs):
     ({'author_rating': 5}, 3),
 ])
 def test_404_ok(db, post_id, kwargs):
-    post = get_object_or_404(model, **kwargs)
+    post = get_object_or_404(MyModel, **kwargs)
     assert post.id == post_id
