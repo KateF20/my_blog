@@ -17,9 +17,14 @@ def test_404_failed(db, exc, kwargs):
         get_object_or_404(MyModel, **kwargs)
 
 
+@pytest.fixture
+def my_model(db):
+    return MyModel.objects.create(slug='slug')
+
+
 @pytest.mark.parametrize('kwargs, post_id', [
     ({'slug': 'slug'}, 1),
 ])
-def test_404_ok(db, post_id, kwargs):
+def test_404_ok(my_model, post_id, kwargs):
     post = get_object_or_404(MyModel, **kwargs)
     assert post.id == post_id
