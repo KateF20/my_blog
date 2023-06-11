@@ -1,28 +1,61 @@
-from django.shortcuts import render, get_object_or_404
+from django.http import HttpResponseRedirect
+from django.urls import reverse
+from django.shortcuts import render
+from django.views.generic import ListView
+from django.views import View
 
 from .models import Post, Author, Tag
+from .forms import CommentForm
 
 
-def index(request):
-    latest_posts = Post.objects.all().order_by('-date')[:3]
-    context = {
-        'latest_posts': latest_posts
-    }
-    return render(request, 'blog/index.html', context)
+class IndexView(ListView):
+    template_name = 'blog/index.html'
+    model = Post
+    ordering = ['-date']
+    context_object_name = 'posts'
+
+    def get_queryset(self):
+        query_set = super().get_queryset()
+        data = query_set[:3]
+        return data
 
 
-def posts(request):
-    all_posts = Post.objects.all().order_by('-date')
-    context = {
-        'all_posts': all_posts
-    }
-    return render(request, 'blog/all_posts.html', context)
+class AllPostsView(ListView):
+    template_name = 'blog/all_posts.html'
+    model = Post
+    ordering = ['-date']
+    context_object_name = 'all_posts'
 
 
-def single_post(request, slug):
-    post = get_object_or_404(Post, slug=slug)
-    context = {
-        'post': post,
-        'tags': post.tags.all()
-    }
-    return render(request, 'blog/single_post.html', context)
+class SinglePostView(View):
+    def get(self, request, slug):
+        post = Post.objects.get(slug=slug)
+        context = {
+            'post': post,
+            'post_tags': post.tags.all(),
+            'comment_form': CommentForm(),
+            'comments': post.comments.all().order_by('-id')
+        }
+        return render(request, 'blog/single_post.html', context)
+
+    def post(self, request, slug):
+        comment_form = CommentForm(request.POST)
+        post = Post.objects.get(slug=slug)
+
+        if comment_form.is_valid():
+            comment = comment_form.save(commit=False)
+            comment.post = post
+            comment.save()
+
+            return HttpResponseRedirect(reverse('single-post', args=[slug]))
+
+        context = {
+            'post': post,
+            'post_tags': post.tags.all(),
+            'comment_form': comment_form,
+            'comments': post.comments.all().order_by('-id')
+
+        }
+
+        return render(request, 'blog/single_post.html', context)
+
