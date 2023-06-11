@@ -4,7 +4,7 @@ from django.test import TestCase
 from blog.models import Post
 
 
-class GetPost(TestCase):
+class TestGetPost(TestCase):
     fixtures = ['tests/fixtures/post.json', 'tests/fixtures/author.json', 'tests/fixtures/tags.json']
 
     def test_existing_post(self):
