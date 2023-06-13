@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.utils.text import Truncator
 
 from .models import Author, Post, Tag, Comment
 
@@ -10,7 +11,10 @@ class PostAdmin(admin.ModelAdmin):
 
 
 class CommentAdmin(admin.ModelAdmin):
-    list_display = ('username', 'post')
+    list_display = ('username', 'short_comment')
+
+    def short_comment(self, comment):
+        return Truncator(comment.text).chars(50)
 
 
 admin.site.register(Post, PostAdmin)

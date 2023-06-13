@@ -48,5 +48,5 @@ class SinglePostView(DetailView):
             comment.save()
             return HttpResponseRedirect(reverse('single-post', args=[slug]))
 
-        context = self.get_context_data(object=self.object, comment_form=comment_form)
+        context = self.get_context_data(object=post, comment_form=comment_form)
         return self.render_to_response(context)
