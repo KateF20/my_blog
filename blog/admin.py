@@ -11,7 +11,7 @@ class PostAdmin(admin.ModelAdmin):
 
 
 class CommentAdmin(admin.ModelAdmin):
-    list_display = ('username', 'short_comment')
+    list_display = ('username', 'post', 'short_comment')
 
     def short_comment(self, comment):
         return Truncator(comment.text).chars(50)
