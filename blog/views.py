@@ -76,12 +76,9 @@ class ReadLaterView(View):
             read_later_posts = []
 
         post_id = int(request.POST['post_id'])
-        print('got post id')
 
         if post_id not in read_later_posts:
             read_later_posts.append(post_id)
             request.session['read_later_posts'] = read_later_posts
-
-        print('got post id 2')
 
         return redirect('home')
