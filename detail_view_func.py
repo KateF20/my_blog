@@ -1,24 +1,16 @@
-from django.http import HttpResponseNotAllowed, HttpResponseRedirect, Http404
+from django.core.exceptions import ImproperlyConfigured
+from django.http import Http404
 from django.shortcuts import render
-from django.urls import reverse
 from django.views import View
 
 
 class DetailView(View):
     template_name = None
     model = None
-    url = None
-    MyForm = None
     context_object_name = None
     slug_field = 'slug'
     kwargs_pk_name = 'id'
     kwargs_slug_name = 'slug'
-
-    def setup(self):
-        pass
-
-    def dispatch(self):
-        pass
 
     def get_object(self):
         pk = self.kwargs.get(self.kwargs_pk_name)
@@ -37,23 +29,8 @@ class DetailView(View):
     def get(self, request, *args, **kwargs):
         self.object = self.get_object()
         context = self.get_context_data(object=self.object)
+        print('get works')
         return self.render_to_response(context)
-
-    def render_to_response(self, context):
-        return 
-
-    def get_context_data(self, **kwargs):
-        kwargs[self.get_context_object_name()] = kwargs['object']
-        return kwargs
-
-    def http_method_not_allowed(self):
-        return HttpResponseNotAllowed('Allowed methods are: GET, POST ???')
-
-    def get_template_names(self):
-        return self.template_name
-
-    def get_queryset(self):
-        pass
 
     def get_context_object_name(self):
         if self.context_object_name:
@@ -61,5 +38,9 @@ class DetailView(View):
         else:
             return self.model.__name__.lower()
 
-    def get_absolute_url(self):
-        return reverse(self.url, kwargs={'slug': self.object.slug})
+    def get_context_data(self, **kwargs):
+        kwargs[self.get_context_object_name()] = kwargs['object']
+        return kwargs
+
+    def render_to_response(self, context=None, **kwargs):
+        return render(self.request, self.template_name, context, **kwargs)

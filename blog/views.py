@@ -1,11 +1,10 @@
 from django.http import HttpResponseRedirect
 from django.urls import reverse
-from django.shortcuts import render
-from django.views.generic import ListView, DetailView
+from django.views.generic import ListView
 
+from .models import Post
 from .forms import CommentForm
-from .models import Post, Author, Tag
-from shortcuts import get_object_or_404
+from detail_view_func import DetailView
 
 
 class IndexView(ListView):
