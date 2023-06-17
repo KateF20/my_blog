@@ -20,7 +20,7 @@
     <section id="summary">
         <h2>{{ post.title }}</h2>
         <div>
-            {% for tag in post_tags %}
+            {% for tag in tags %}
                 <span class="tag">{{ tag.caption }}</span>
             {% endfor %}
         </div>
@@ -28,7 +28,7 @@
             <form action="{% url 'read-later' %}" method="POST">
                 <input type="hidden" value="{{ post.id }}" name="post_id">
                 {% csrf_token %}
-                <button>Read later</button>
+                <button type="submit">{% if is_saved %}Remove from Read Later{% else %}Add to Read Later{% endif %}</button>
             </form>
         </div>
         <article>

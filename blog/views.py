@@ -1,6 +1,7 @@
 from django.http import HttpResponseRedirect
 from django.urls import reverse
-from django.views.generic import ListView
+from django.shortcuts import render
+from django.views.generic import ListView, View
 
 from .models import Post
 from .forms import CommentForm
@@ -31,11 +32,13 @@ class SinglePostView(DetailView):
     model = Post
     context_object_name = 'post'
 
-    def get_context_data(self, object, comment_form=None, **kwargs):
-        context = super().get_context_data(object=object, **kwargs)
-        context['comments'] = object.comments.all().order_by('-id')
-        context['tags'] = object.tags.all()
-        context['comment_form'] = comment_form or CommentForm()
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        read_later_posts = self.request.session.get('read_later_posts', [])
+        context['is_saved'] = self.object.id in read_later_posts
+        context['comments'] = self.object.comments.all().order_by('-id')
+        context['tags'] = self.object.tags.all()
+        context['comment_form'] = CommentForm()
         return context
 
     def post(self, request, slug):
@@ -55,29 +58,24 @@ class SinglePostView(DetailView):
 class ReadLaterView(View):
     def get(self, request):
         read_later_posts = request.session.get('read_later_posts')
-
         context = {}
 
-        if read_later_posts is None:
-            context['post'] = []
-            context['has_posts'] = False
-        else:
+        if read_later_posts is not None:
             posts = Post.objects.filter(id__in=read_later_posts)
-            context['posts'] = posts
-            context['has_posts'] = True
+        context['posts'] = posts
 
         return render(request, 'blog/read_later_posts.html', context)
 
     def post(self, request):
         read_later_posts = request.session.get('read_later_posts')
-
-        if read_later_posts is None:
-            read_later_posts = []
-
         post_id = int(request.POST['post_id'])
 
-        if post_id not in read_later_posts:
+        if post_id in read_later_posts:
+            read_later_posts.remove(post_id)
+        else:
             read_later_posts.append(post_id)
-            request.session['read_later_posts'] = read_later_posts
 
-        return redirect('home')
+        request.session['read_later_posts'] = read_later_posts
+        request.session.modified = True
+
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
