@@ -1,11 +1,12 @@
 from django.http import HttpResponseRedirect
 from django.urls import reverse
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.views.generic import ListView, View
 
 from .models import Post
 from .forms import CommentForm
 from detail_view_func import DetailView
+from shortcuts import get_object_or_404
 
 
 class IndexView(ListView):
@@ -32,13 +33,13 @@ class SinglePostView(DetailView):
     model = Post
     context_object_name = 'post'
 
-    def get_context_data(self, **kwargs):
+    def get_context_data(self, object, comment_form=None, **kwargs):
         context = super().get_context_data(**kwargs)
         read_later_posts = self.request.session.get('read_later_posts', [])
         context['is_saved'] = self.object.id in read_later_posts
         context['comments'] = self.object.comments.all().order_by('-id')
         context['tags'] = self.object.tags.all()
-        context['comment_form'] = CommentForm()
+        context['comment_form'] = CommentForm() or comment_form
         return context
 
     def post(self, request, slug):
@@ -57,25 +58,27 @@ class SinglePostView(DetailView):
 
 class ReadLaterView(View):
     def get(self, request):
-        read_later_posts = request.session.get('read_later_posts')
+        read_later_posts = request.session.get('read_later_posts', [])
         context = {}
 
         if read_later_posts is not None:
-            posts = Post.objects.filter(id__in=read_later_posts)
-        context['posts'] = posts
+            context['posts'] = Post.objects.filter(id__in=read_later_posts)
 
         return render(request, 'blog/read_later_posts.html', context)
 
     def post(self, request):
-        read_later_posts = request.session.get('read_later_posts')
+        read_later_posts = request.session.get('read_later_posts', [])
         post_id = int(request.POST['post_id'])
+        action = request.POST.get('action')
+        slug = get_object_or_404(Post, pk=post_id).slug
 
-        if post_id in read_later_posts:
-            read_later_posts.remove(post_id)
+        if action == 'remove':
+            if post_id in read_later_posts:
+                read_later_posts.remove(post_id)
         else:
-            read_later_posts.append(post_id)
+            if post_id not in read_later_posts:
+                read_later_posts.append(post_id)
 
         request.session['read_later_posts'] = read_later_posts
-        request.session.modified = True
 
-        return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
+        return redirect('single-post', slug=slug)
