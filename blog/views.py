@@ -34,12 +34,12 @@ class SinglePostView(DetailView):
     context_object_name = 'post'
 
     def get_context_data(self, object, comment_form=None, **kwargs):
-        context = super().get_context_data(**kwargs)
+        context = super().get_context_data(object, **kwargs)
         read_later_posts = self.request.session.get('read_later_posts', [])
-        context['is_saved'] = self.object.id in read_later_posts
-        context['comments'] = self.object.comments.all().order_by('-id')
-        context['tags'] = self.object.tags.all()
-        context['comment_form'] = CommentForm() or comment_form
+        context['is_saved'] = object.id in read_later_posts
+        context['comments'] = object.comments.all().order_by('-id')
+        context['tags'] = object.tags.all()
+        context['comment_form'] = comment_form or CommentForm()
         return context
 
     def post(self, request, slug):
