@@ -6,18 +6,19 @@
 {% endblock %}
 
 {% block css_files %}
-    <link rel="stylesheet" href="{% static 'blog/read-later-posts.css' %}">
+    <link rel="stylesheet" href="{% static 'blog/read_later_posts.css' %}">
 {% endblock %}
 
 {% block content %}
-    <section>
-        {% if not has_posts %}
+    <section id="stored-posts">
+        {% if not posts %}
             <p>You didn't save any posts to read later</p>
+        {% else %}
+            <ul>
+                {% for post in posts %}
+                    <li><a href="{% url 'single-post' post.slug %}">{{ post.title }}</a></li>
+                {% endfor %}
+            </ul>
         {% endif %}
-        <ul>
-            {% for post in posts %}
-                <li><a href="{% url 'single-post' post.slug %}">{{ post.title }}</a></li>
-            {% endfor %}
-        </ul>
     </section>
 {% endblock %}
